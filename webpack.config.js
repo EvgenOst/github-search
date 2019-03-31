@@ -44,7 +44,7 @@ module.exports = {
 		]
 	},
 
-	entry: './src/index.ts',
+	entry: './src/main.ts',
 
 	output: {
 		filename: '[name].[chunkhash].js',
