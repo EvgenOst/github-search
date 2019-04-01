@@ -56,13 +56,9 @@ function renderResponse(responce: GithubUserResponseModel): void {
       const avatar = document.createElement('img');
       avatar.src = user.avatar_url;
       
-      const score = document.createElement('span');
-      score.innerText = `${user.score}`;
-      
       const el =  document.createElement('div');
       el.appendChild(avatar);
       el.appendChild(link);
-      el.appendChild(score);
 
       return el;
     })
