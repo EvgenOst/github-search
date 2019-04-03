@@ -100,7 +100,7 @@ var getUsers = 'https://api.github.com/search/users';
 var searchInputEl = document.querySelector(searchInputSel);
 var resultContainerEl = document.querySelector(searchResultSel);
 var search$ = rxjs_1.fromEvent(searchInputEl, 'keyup')
-    .pipe(operators_1.debounceTime(500), operators_1.map(function (event) { return event.target.value; }), operators_1.map(function (i) { return i.trim(); }), operators_1.filter(function (i) { return !!i; }), operators_1.distinctUntilChanged(), operators_1.tap(function (_) { return clearResultContainer(); }), operators_1.switchMap(function (term) { return getRemoteData(term)
+    .pipe(operators_1.debounceTime(500), operators_1.map(function (event) { return event.target.value.trim(); }), operators_1.filter(function (i) { return !!i; }), operators_1.distinctUntilChanged(), operators_1.tap(function (_) { return clearResultContainer(); }), operators_1.switchMap(function (term) { return getRemoteData(term)
     .pipe(operators_1.catchError(function (_) { return rxjs_1.of({ total_count: 0, items: [] }); })); }));
 search$.subscribe(function (res) { return renderResponse(res); });
 function clearResultContainer() {
@@ -111,14 +111,16 @@ function clearResultContainer() {
         document.body.appendChild(resultContainerEl);
     }
 }
-//FIXME возникла проблема с указанием типа возвращаемого значения
 function getRemoteData(term) {
     var url = getUsers + "?q=" + term;
     return rxjs_1.from(fetch(url).then(function (res) { return res.json(); }));
 }
-function renderResponse(responce) {
-    var users = responce.items;
-    users
+function renderResponse(response) {
+    if (!response.items || !response.items.length) {
+        resultContainerEl.innerText = 'Нет результатов';
+        return;
+    }
+    response.items
         .map(function (user) {
         var link = document.createElement('a');
         link.href = user.html_url;
@@ -12326,4 +12328,4 @@ function zipAll(project) {
 
 /***/ })
 /******/ ]);
-//# sourceMappingURL=main.e82fdd000c70841cd5b6.js.map
+//# sourceMappingURL=main.cd8fd05d9183b277e9ec.js.map

@@ -12,11 +12,10 @@ const getUsers: string = 'https://api.github.com/search/users';
 const searchInputEl = document.querySelector(searchInputSel) as HTMLInputElement;
 let resultContainerEl = document.querySelector(searchResultSel) as HTMLDivElement;
 
-const search$: Observable<any> = fromEvent(searchInputEl, 'keyup')
+const search$: Observable<GithubUserResponseModel> = fromEvent(searchInputEl, 'keyup')
   .pipe(
     debounceTime(500),
-    map((event: Event) => (event.target as any).value),
-    map(i => i.trim()),
+    map((event: Event) => (event.target as any).value.trim()),
     filter(i => !!i),
     distinctUntilChanged(),
     tap(_ => clearResultContainer()),
@@ -26,8 +25,7 @@ const search$: Observable<any> = fromEvent(searchInputEl, 'keyup')
       )
     )
   );
-search$.subscribe(res => renderResponse(res));
-
+search$.subscribe(res => renderResponse(res));  
 
 function clearResultContainer(): void {
   if (resultContainerEl) {
@@ -38,16 +36,19 @@ function clearResultContainer(): void {
   }
 }
 
-//FIXME возникла проблема с указанием типа возвращаемого значения
-function getRemoteData(term: string): Observable<any> {
+function getRemoteData(term: string): Observable<GithubUserResponseModel> {
   const url: string = `${getUsers}?q=${term}`;
   return from(fetch(url).then(res => res.json()));
 }
 
-function renderResponse(responce: GithubUserResponseModel): void {
-  const users = responce.items;
+function renderResponse(response: GithubUserResponseModel): void {
+  if (!response.items || !response.items.length) {
+    resultContainerEl.innerText = 'Нет результатов';
 
-  users
+    return;
+  }
+
+  response.items
     .map((user: UserModel) => {
       const link = document.createElement('a');
       link.href = user.html_url;
